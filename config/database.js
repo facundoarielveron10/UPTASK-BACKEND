@@ -21,4 +21,6 @@ const conectarDB = async () => {
 };
 // ---- ---- ---- ---- ---- //
 
+// ---- EXPORTACIONES ---- //
 export default conectarDB;
+// ---- ---- ---- ---- ---- //
