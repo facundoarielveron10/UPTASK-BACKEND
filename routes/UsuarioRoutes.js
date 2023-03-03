@@ -1,18 +1,18 @@
 // ---- IMPORTACIONES ---- //
 import express from 'express';
 import {
-    registrar,
-    autenticar,
-    confirmar,
-    olvidePassword,
-    comprobarToken,
-    nuevoPassword,
-    perfil,
+	registrar,
+	autenticar,
+	confirmar,
+	olvidePassword,
+	comprobarToken,
+	nuevoPassword,
+	perfil,
 } from '../controllers/UsuarioController.js';
 import checkAuth from '../middleware/checkAuth.js';
 // ---- ---- ---- ---- ---- //
 
-// ---- ENRUTADOR (ROUTER) ---- //
+// ---- ENRUTADOR (USUARIO) ---- //
 const router = express.Router();
 
 // AUTENTICACION, REGISTRO Y CONFIRMACION DE USUARIOS
