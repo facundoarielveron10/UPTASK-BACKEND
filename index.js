@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import conectarDB from './config/database.js';
 import UsuarioRoutes from './routes/UsuarioRoutes.js';
 import ProyectoRoutes from './routes/ProyectoRoutes.js';
+import TareaRoutes from './routes/TareaRoutes.js';
 // ---- ---- ---- ---- ---- //
 
 // ---- SERVIDOR ---- //
@@ -22,6 +23,7 @@ conectarDB();
 // ROUTING
 app.use('/api/usuarios', UsuarioRoutes);
 app.use('/api/proyectos', ProyectoRoutes);
+app.use('/api/tareas', TareaRoutes);
 
 // PUERTO
 const PORT = process.env.PORT || 4000;
