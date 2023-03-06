@@ -1,6 +1,7 @@
 // ---- IMPORTACIONES ---- //
 import Tarea from '../models/Tarea.js';
 import Proyecto from '../models/Proyecto.js';
+import { json } from 'express';
 // ---- ---- ---- ---- ---- //
 
 // ---- CONTROLADOR (TAREAS) ---- //
@@ -53,9 +54,109 @@ const obtenerTarea = async (req, res) => {
 	res.json(tarea);
 };
 
-const actualizarTarea = async (req, res) => {};
-const eliminarTarea = async (req, res) => {};
-const cambiarEstado = async (req, res) => {};
+const actualizarTarea = async (req, res) => {
+	// EDITAR TAREA SELECCIONADA POR EL USUARIO
+	const { id } = req.params;
+
+	// REVISAR LA EXISTENCIA DE LA TAREA SELECCIONADA
+	const tarea = await Tarea.findById(id).populate('proyecto');
+
+	if (!tarea) {
+		const error = new Error('Tarea no encontrada');
+		return res.status(404).json({ msg: error.message });
+	}
+
+	// VERIFICAR QUE LA TEREA ESTE ASOCIADA A UN PROYECTO QUE LE PERTENESCA AL USUARIO
+	if (tarea.proyecto.creador.toString() !== req.usuario._id.toString()) {
+		const error = new Error(
+			'No tienes los permisos para editar esta tarea',
+		);
+		return res.status(403).json({ msg: error.message });
+	}
+
+	// EDITAR TAREA
+	tarea.nombre = req.body.nombre || tarea.nombre;
+	tarea.descripcion = req.body.descripcion || tarea.descripcion;
+	tarea.fechaEntrega = req.body.fechaEntrega || tarea.fechaEntrega;
+	tarea.prioridad = req.body.prioridad || tarea.prioridad;
+
+	// RETORNAMOS LA TAREA ACTUALIZADO
+	try {
+		// Guardamos en la base de datos la tarea
+		const tareaAlmacenada = await tarea.save();
+		// Retornamos la tarea
+		res.json(tareaAlmacenada);
+	} catch (error) {
+		// Mostramos el error
+		console.log(error);
+	}
+};
+
+const eliminarTarea = async (req, res) => {
+	// ELIMINAR TAREA SELECCIONADA POR EL USUARIO
+	const { id } = req.params;
+
+	// REVISAR LA EXISTENCIA DE LA TAREA SELECCIONADA
+	const tarea = await Tarea.findById(id).populate('proyecto');
+
+	if (!tarea) {
+		const error = new Error('Tarea no encontrada');
+		return res.status(404).json({ msg: error.message });
+	}
+
+	// VERIFICAR QUE LA TEREA ESTE ASOCIADA A UN PROYECTO QUE LE PERTENESCA AL USUARIO
+	if (tarea.proyecto.creador.toString() !== req.usuario._id.toString()) {
+		const error = new Error(
+			'No tienes los permisos para eliminar esta tarea',
+		);
+		return res.status(403).json({ msg: error.message });
+	}
+
+	// ELIMINAR LA TAREA
+	try {
+		await tarea.deleteOne();
+		res.json({ msg: 'Tarea Eliminada' });
+	} catch (error) {
+		// Mostrar el error
+		console.log(error);
+	}
+};
+
+const cambiarEstado = async (req, res) => {
+	// CAMBIAR ESTADO DE LA TAREA SELECCIONADA POR EL USUARIO
+	const { id } = req.params;
+
+	// REVISAR LA EXISTENCIA DE LA TAREA SELECCIONADA
+	const tarea = await Tarea.findById(id).populate('proyecto');
+
+	if (!tarea) {
+		const error = new Error('Tarea no encontrada');
+		return res.status(404).json({ msg: error.message });
+	}
+
+	// VERIFICAR QUE LA TEREA ESTE ASOCIADA A UN PROYECTO QUE LE PERTENESCA AL USUARIO
+	if (tarea.proyecto.creador.toString() !== req.usuario._id.toString()) {
+		const error = new Error(
+			'No tienes los permisos para cambiar de estado esta tarea',
+		);
+		return res.status(403).json({ msg: error.message });
+	}
+
+	// CAMBIAR ESTADO DE LA TAREA
+	tarea.estado === false ? (tarea.estado = true) : (tarea.estado = false);
+	res.json({ msg: 'Cambio de estado exitoso' });
+
+	// RETORNAMOS UN MENSAJE
+	try {
+		// Guardamos en la base de datos la tarea
+		await tarea.save();
+		// Retornamos el mensaje
+		res.json({ msg: 'Cambio de estado exitoso' });
+	} catch (error) {
+		// Mostramos el error
+		console.log(error);
+	}
+};
 // ---- ---- ---- ---- ---- ---- ----//
 
 // ---- EXPORTACIONES ---- //

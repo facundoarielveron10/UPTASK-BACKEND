@@ -1,5 +1,6 @@
 // ---- IMPORTACIONES ---- //
 import Proyecto from '../models/Proyecto.js';
+import Tarea from '../models/Tarea.js';
 // ---- ---- ---- ---- ---- //
 
 // ---- CONTROLADOR (PROYECTOS) ---- //
@@ -46,7 +47,14 @@ const obtenerProyecto = async (req, res) => {
 		return res.status(401).json({ msg: error.message });
 	}
 
-	res.json(proyecto);
+	// OBTENER LAS TAREAS DEL PROYECTO
+	const tareas = await Tarea.find().where('proyecto').equals(proyecto._id);
+
+	// RETORNAR LOS PROYECTOS Y LAS TAREAS
+	res.json({
+		proyecto,
+		tareas,
+	});
 };
 
 const editarProyecto = async (req, res) => {
@@ -115,8 +123,6 @@ const eliminarProyecto = async (req, res) => {
 const agregarColaborador = async (req, res) => {};
 
 const eliminarColaborador = async (req, res) => {};
-
-const obtenerTareas = async (req, res) => {};
 // ---- ---- ---- ---- ---- ---- ----//
 
 // ---- EXPORTACIONES ---- //
@@ -128,6 +134,5 @@ export {
 	eliminarProyecto,
 	agregarColaborador,
 	eliminarColaborador,
-	obtenerTareas,
 };
 // ---- ---- ---- ---- ---- //

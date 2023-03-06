@@ -8,7 +8,6 @@ import {
 	eliminarProyecto,
 	agregarColaborador,
 	eliminarColaborador,
-	obtenerTareas,
 } from '../controllers/ProyectoController.js';
 import checkAuth from '../middleware/checkAuth.js';
 // ---- ---- ---- ---- ---- //
@@ -21,10 +20,6 @@ const router = express.Router();
 // -- POST -- //
 router.post('/agregar-colaborador/:id', checkAuth, agregarColaborador);
 router.post('/eliminar-colaborador/:id', checkAuth, eliminarColaborador);
-// -- -- -- -- //
-
-// -- GET -- //
-router.get('/tareas/:id', checkAuth, obtenerTareas);
 // -- -- -- -- //
 
 // -- POST Y GET -- //
