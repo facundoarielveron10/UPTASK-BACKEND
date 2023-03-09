@@ -2,6 +2,7 @@
 import Usuario from '../models/Usuario.js';
 import generarId from '../helpers/generarId.js';
 import generarJWT from '../helpers/generarJWT.js';
+import { emailRegistro } from '../helpers/email.js';
 // ---- ---- ---- ---- ---- //
 
 // ---- CONTROLADOR (USUARIO) ---- //
@@ -24,6 +25,13 @@ const registrar = async (req, res) => {
 
 		// ALMACENAR USUARIO EN LA BASE DE DATOS
 		await usuario.save();
+
+		// ENVIAR EMAIL DE CONFIRMACION
+		emailRegistro({
+			email: usuario.email,
+			nombre: usuario.nombre,
+			token: usuario.token,
+		});
 
 		// RETORNAR EL USUARIO ALMACENADO
 		res.json({
