@@ -2,7 +2,7 @@
 import Usuario from '../models/Usuario.js';
 import generarId from '../helpers/generarId.js';
 import generarJWT from '../helpers/generarJWT.js';
-import { emailRegistro } from '../helpers/email.js';
+import { emailReestablecer, emailRegistro } from '../helpers/email.js';
 // ---- ---- ---- ---- ---- //
 
 // ---- CONTROLADOR (USUARIO) ---- //
@@ -115,6 +115,12 @@ const olvidePassword = async (req, res) => {
 		usuario.token = generarId();
 		// Guardamos el nuevo token en la Base de datos
 		await usuario.save();
+		// Eviamos el email
+		emailReestablecer({
+			email: usuario.email,
+			nombre: usuario.nombre,
+			token: usuario.token,
+		});
 		// Retornamos un respuesta
 		res.json({ msg: 'Hemos enviado un email con las instrucciones' });
 	} catch (error) {
