@@ -30,6 +30,7 @@ const nuevoProyecto = async (req, res) => {
 };
 
 const obtenerProyecto = async (req, res) => {
+<<<<<<< HEAD
     // OBTENER UN PROYECTO ELEGIDO POR EL USUARIO
     const { id } = req.params;
 
@@ -49,6 +50,27 @@ const obtenerProyecto = async (req, res) => {
 
     // RETORNAR LOS PROYECTOS Y LAS TAREAS
     res.json(proyecto);
+=======
+	// OBTENER UN PROYECTO ELEGIDO POR EL USUARIO
+	const { id } = req.params;
+
+	// VERIFICAR LA EXISTENCIA DEL PROYECTO
+	const proyecto = await Proyecto.findById(id);
+
+	if (!proyecto) {
+		const error = new Error('Proyecto no encontrado');
+		return res.status(404).json({ msg: error.message });
+	}
+
+	// VERIFICAR QUE EL PROYECTO LE PERTENESCA AL USUARIO
+	if (proyecto.creador.toString() !== req.usuario._id.toString()) {
+		const error = new Error('Accion no valida');
+		return res.status(401).json({ msg: error.message });
+	}
+
+	// RETORNAR LOS PROYECTOS Y LAS TAREAS
+	res.json(proyecto);
+>>>>>>> 9eb55469aef5dcc38e27473da61a80857fef2728
 };
 
 const editarProyecto = async (req, res) => {
