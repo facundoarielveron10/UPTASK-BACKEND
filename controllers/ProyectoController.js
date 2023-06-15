@@ -8,7 +8,8 @@ const obtenerProyectos = async (req, res) => {
     // OBTENER TODOS LOS PROYECTOS ASOCIADOS AL USUARIO
     const proyectos = await Proyecto.find()
         .where('creador')
-        .equals(req.usuario);
+        .equals(req.usuario)
+        .select('-tareas');
 
     // Retornamos los proyectos
     res.json(proyectos);
@@ -34,7 +35,7 @@ const obtenerProyecto = async (req, res) => {
     const { id } = req.params;
 
     // VERIFICAR LA EXISTENCIA DEL PROYECTO
-    const proyecto = await Proyecto.findById(id);
+    const proyecto = await Proyecto.findById(id).populate('tareas');
 
     if (!proyecto) {
         const error = new Error('Proyecto no encontrado');
