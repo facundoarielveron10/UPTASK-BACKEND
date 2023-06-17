@@ -35,7 +35,12 @@ const obtenerProyecto = async (req, res) => {
     const { id } = req.params;
 
     // VERIFICAR LA EXISTENCIA DEL PROYECTO
-    const proyecto = await Proyecto.findById(id).populate('tareas');
+    const proyecto = await Proyecto.findById(id)
+        .populate('tareas')
+        .populate('creador', {
+            nombre: req.usuario.nombre,
+            email: req.usuario.email,
+        });
 
     if (!proyecto) {
         const error = new Error('Proyecto no encontrado');
@@ -43,7 +48,7 @@ const obtenerProyecto = async (req, res) => {
     }
 
     // VERIFICAR QUE EL PROYECTO LE PERTENESCA AL USUARIO
-    if (proyecto.creador.toString() !== req.usuario._id.toString()) {
+    if (proyecto.creador._id.toString() !== req.usuario._id.toString()) {
         const error = new Error('Accion no valida');
         return res.status(401).json({ msg: error.message });
     }
