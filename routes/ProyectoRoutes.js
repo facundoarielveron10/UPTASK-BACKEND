@@ -1,13 +1,14 @@
 // ---- IMPORTACIONES ---- //
 import express from 'express';
 import {
-	obtenerProyectos,
-	nuevoProyecto,
-	obtenerProyecto,
-	editarProyecto,
-	eliminarProyecto,
-	agregarColaborador,
-	eliminarColaborador,
+    obtenerProyectos,
+    nuevoProyecto,
+    obtenerProyecto,
+    editarProyecto,
+    eliminarProyecto,
+    buscarColaborador,
+    agregarColaborador,
+    eliminarColaborador,
 } from '../controllers/ProyectoController.js';
 import checkAuth from '../middleware/checkAuth.js';
 // ---- ---- ---- ---- ---- //
@@ -18,20 +19,21 @@ const router = express.Router();
 // CREACION, OBTENCION, EDICION DE PROYECTOS E TAREAS Y AGREGACION, ELIMINACION DE COLABORADORES
 
 // -- POST -- //
-router.post('/agregar-colaborador/:id', checkAuth, agregarColaborador);
-router.post('/eliminar-colaborador/:id', checkAuth, eliminarColaborador);
+router.post('/colaboradores', checkAuth, buscarColaborador);
+router.post('/colaboradores/:id', checkAuth, agregarColaborador);
+router.delete('/colaboradores/:id', checkAuth, eliminarColaborador);
 // -- -- -- -- //
 
 // -- POST Y GET -- //
 router
-	.route('/')
-	.get(checkAuth, obtenerProyectos)
-	.post(checkAuth, nuevoProyecto);
+    .route('/')
+    .get(checkAuth, obtenerProyectos)
+    .post(checkAuth, nuevoProyecto);
 router
-	.route('/:id')
-	.get(checkAuth, obtenerProyecto)
-	.put(checkAuth, editarProyecto)
-	.delete(checkAuth, eliminarProyecto);
+    .route('/:id')
+    .get(checkAuth, obtenerProyecto)
+    .put(checkAuth, editarProyecto)
+    .delete(checkAuth, eliminarProyecto);
 // -- -- -- -- -- //
 
 // ---- ---- ---- ---- ---- //

@@ -1,6 +1,6 @@
 // ---- IMPORTACIONES ---- //
 import Proyecto from '../models/Proyecto.js';
-import Tarea from '../models/Tarea.js';
+import Usuario from '../models/Usuario.js';
 // ---- ---- ---- ---- ---- //
 
 // ---- CONTROLADOR (PROYECTOS) ---- //
@@ -23,7 +23,7 @@ const nuevoProyecto = async (req, res) => {
     try {
         // Guardamos en la base de datos
         const proyectoAlmacenado = await proyecto.save();
-        // Retornamos el proyecto creado
+        // Retornamos el proyecto exito
         res.json(proyectoAlmacenado);
     } catch (error) {
         console.log(error);
@@ -120,6 +120,18 @@ const eliminarProyecto = async (req, res) => {
     }
 };
 
+const buscarColaborador = async (req, res) => {
+    const { email } = req.body;
+    const usuario = await Usuario.findOne({ email });
+
+    if (!usuario) {
+        const error = new Error('Usuario no encontrado');
+        return res.status(404).json({ msg: error.message });
+    }
+
+    res.json(usuario);
+};
+
 const agregarColaborador = async (req, res) => {};
 
 const eliminarColaborador = async (req, res) => {};
@@ -132,6 +144,7 @@ export {
     obtenerProyecto,
     editarProyecto,
     eliminarProyecto,
+    buscarColaborador,
     agregarColaborador,
     eliminarColaborador,
 };
