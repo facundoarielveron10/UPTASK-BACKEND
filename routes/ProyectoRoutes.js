@@ -21,7 +21,7 @@ const router = express.Router();
 // -- POST -- //
 router.post('/colaboradores', checkAuth, buscarColaborador);
 router.post('/colaboradores/:id', checkAuth, agregarColaborador);
-router.delete('/colaboradores/:id', checkAuth, eliminarColaborador);
+router.post('/eliminar-colaborador/:id', checkAuth, eliminarColaborador);
 // -- -- -- -- //
 
 // -- POST Y GET -- //
