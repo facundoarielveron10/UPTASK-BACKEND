@@ -117,7 +117,12 @@ const eliminarTarea = async (req, res) => {
 
     // ELIMINAR LA TAREA
     try {
-        await tarea.deleteOne();
+        const proyecto = await Proyecto.findById(tarea.proyecto);
+        proyecto.tareas.pull(tarea._id);
+        await Promise.allSettled([
+            await proyecto.save(),
+            await tarea.deleteOne(),
+        ]);
         res.json({ msg: 'Tarea Eliminada' });
     } catch (error) {
         // Mostrar el error
@@ -138,7 +143,13 @@ const cambiarEstado = async (req, res) => {
     }
 
     // VERIFICAR QUE LA TEREA ESTE ASOCIADA A UN PROYECTO QUE LE PERTENESCA AL USUARIO
-    if (tarea.proyecto.creador.toString() !== req.usuario._id.toString()) {
+    if (
+        tarea.proyecto.creador.toString() !== req.usuario._id.toString() &&
+        !tarea.proyecto.colaboradores.some(
+            (colaborador) =>
+                colaborador._id.toString() === req.usuario._id.toString()
+        )
+    ) {
         const error = new Error(
             'No tienes los permisos para cambiar de estado esta tarea'
         );
@@ -146,19 +157,11 @@ const cambiarEstado = async (req, res) => {
     }
 
     // CAMBIAR ESTADO DE LA TAREA
-    tarea.estado === false ? (tarea.estado = true) : (tarea.estado = false);
-    res.json({ msg: 'Cambio de estado exitoso' });
-
-    // RETORNAMOS UN MENSAJE
-    try {
-        // Guardamos en la base de datos la tarea
-        await tarea.save();
-        // Retornamos el mensaje
-        res.json({ msg: 'Cambio de estado exitoso' });
-    } catch (error) {
-        // Mostramos el error
-        console.log(error);
-    }
+    tarea.estado = !tarea.estado;
+    // GUARDAMOS LA TAREA EN LA BD
+    await tarea.save();
+    // RETORNAMOS ESA TAREA
+    res.json(tarea);
 };
 // ---- ---- ---- ---- ---- ---- ----//
 
