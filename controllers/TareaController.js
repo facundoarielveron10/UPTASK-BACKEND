@@ -158,10 +158,15 @@ const cambiarEstado = async (req, res) => {
 
     // CAMBIAR ESTADO DE LA TAREA
     tarea.estado = !tarea.estado;
+    tarea.completado = req.usuario._id;
     // GUARDAMOS LA TAREA EN LA BD
     await tarea.save();
+    // MOSTRAMOS LA TAREA ALMACENADA
+    const tareaAlmacenada = await Tarea.findById(id)
+        .populate('proyecto')
+        .populate('completado');
     // RETORNAMOS ESA TAREA
-    res.json(tarea);
+    res.json(tareaAlmacenada);
 };
 // ---- ---- ---- ---- ---- ---- ----//
 
