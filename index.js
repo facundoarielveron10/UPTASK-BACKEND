@@ -6,6 +6,7 @@ import conectarDB from './config/database.js';
 import UsuarioRoutes from './routes/UsuarioRoutes.js';
 import ProyectoRoutes from './routes/ProyectoRoutes.js';
 import TareaRoutes from './routes/TareaRoutes.js';
+import Proyecto from './models/Proyecto.js';
 // ---- ---- ---- ---- ---- //
 
 // ---- SERVIDOR ---- //
@@ -24,15 +25,15 @@ conectarDB();
 // PERMITIR CONEXIONES DESDE EL DOMINO DEL FRONTEND
 const whitelist = [`${process.env.FRONT_URL}`];
 const corsOptions = {
-	origin: function (origin, callback) {
-		if (whitelist.includes(origin)) {
-			// TIENE LOS PERMISOS PARA CONSULTAR LA API
-			callback(null, true);
-		} else {
-			// NO TIENE LOS PERMISOS PARA CONSULTAR LA API
-			callback(new Error('Error de Cors'));
-		}
-	},
+    origin: function (origin, callback) {
+        if (whitelist.includes(origin)) {
+            // TIENE LOS PERMISOS PARA CONSULTAR LA API
+            callback(null, true);
+        } else {
+            // NO TIENE LOS PERMISOS PARA CONSULTAR LA API
+            callback(new Error('Error de Cors'));
+        }
+    },
 };
 app.use(cors(corsOptions));
 
@@ -46,30 +47,67 @@ const PORT = process.env.PORT || 4000;
 
 // INICIO DEL SERVIDOR
 const servidor = app.listen(PORT, () => {
-	console.log(`Servidor corriendo en el puerto ${PORT}`);
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
 
 // SOCKET.IO
 import { Server } from 'socket.io';
 
 const io = new Server(servidor, {
-	pingTimeout: 60000,
-	cors: {
-		origin: process.env.FRONT_URL,
-	},
+    pingTimeout: 60000,
+    cors: {
+        origin: process.env.FRONT_URL,
+    },
 });
 
-io.on('connection', socket => {
-	console.log('Conectado a socket.io');
+io.on('connection', (socket) => {
+    console.log('Conectado a socket.io');
 
-	// Definir los eventos de socket io
-	// ABRIR UN PROYECTO
-	socket.on('abrir proyecto', proyecto => {
-		socket.join(proyecto);
-	});
-	// CREAR UNA NUEVA TAREA
-	socket.on('nueva tarea', tarea => {
-		socket.on(tarea?.proyecto).emit('tarea agregada', tarea);
-	});
+    // Definir los eventos de socket io
+    // ABRIR UN PROYECTO
+    socket.on('abrir proyecto', (proyecto) => {
+        socket.join(proyecto);
+    });
+    // EDITAR UN PROYECTO
+    socket.on('editar proyecto', async (proyecto) => {
+        const proyectoActualizado = await Proyecto.findById(proyecto._id)
+            .populate({
+                path: 'tareas',
+                populate: { path: 'completado', select: 'nombre' },
+            })
+            .populate('creador', 'nombre email')
+            .populate('colaboradores', 'nombre email');
+        socket.to(proyecto?._id).emit('proyecto editado', proyectoActualizado);
+    });
+    // CREAR UNA NUEVA TAREA
+    socket.on('nueva tarea', (tarea) => {
+        const proyecto = tarea?.proyecto;
+        socket.to(proyecto).emit('tarea agregada', tarea);
+    });
+    // ELIMINAR UNA TAREA
+    socket.on('eliminar tarea', (tarea) => {
+        const proyecto = tarea?.proyecto;
+        socket.to(proyecto).emit('tarea eliminada', tarea);
+    });
+    // EDITAR UNA TAREA
+    socket.on('editar tarea', (tarea) => {
+        const proyecto = tarea?.proyecto?._id;
+        socket.to(proyecto).emit('tarea editada', tarea);
+    });
+    // CAMBIAR ESTADO DE UNA TAREA
+    socket.on('cambiar estado', (tarea) => {
+        const proyecto = tarea?.proyecto?._id;
+        socket.to(proyecto).emit('nuevo estado', tarea);
+    });
+    // NUEVO COLABORADOR
+    socket.on('nuevo colaborador', (colaborador, proyecto) => {
+        socket.to(proyecto).emit('nuevo colaborador', colaborador, proyecto);
+    });
+    // ELIMINAR UN COLABORADOR
+    socket.on('eliminar colaborador', (colaborador, proyecto) => {
+        socket
+            .to(proyecto)
+            .emit('colaborador eliminado', colaborador, proyecto);
+    });
 });
 // ---- ---- ---- ---- ---- //
