@@ -67,6 +67,7 @@ io.on('connection', (socket) => {
     // ABRIR UN PROYECTO
     socket.on('abrir proyecto', (proyecto) => {
         socket.join(proyecto);
+        socket.to(proyecto).emit('informacion', false, proyecto);
     });
     // EDITAR UN PROYECTO
     socket.on('editar proyecto', async (proyecto) => {
@@ -78,6 +79,9 @@ io.on('connection', (socket) => {
             .populate('creador', 'nombre email')
             .populate('colaboradores', 'nombre email');
         socket.to(proyecto?._id).emit('proyecto editado', proyectoActualizado);
+    });
+    socket.on('editar', (estado, proyecto) => {
+        socket.to(proyecto).emit('editando', estado, proyecto);
     });
     // CREAR UNA NUEVA TAREA
     socket.on('nueva tarea', (tarea) => {
