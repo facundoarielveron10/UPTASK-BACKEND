@@ -5,10 +5,13 @@ import mongoose from 'mongoose';
 // ---- BASE DE DATOS ---- //
 const conectarDB = async () => {
     try {
-        const connection = await mongoose.connect(`${process.env.DB_URL}`, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        const connection = await mongoose.connect(
+            `${process.env.MONGODB_URI}`,
+            {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+            }
+        );
 
         const url = `${connection.connection.host}:${connection.connection.port}`;
         console.log(`MongoDB Conectado en: ${url}`);
